@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-@theme {
-  /* ---------- surfaces ---------- */
+:root {
+  /* ---------- Light Mode (Violet / Warm Light) ---------- */
   --color-bg:            #FBF8F4;  /* warm off-white page background */
   --color-surface:       #FFFFFF;  /* cards, navbar, inputs */
   --color-surface-2:     #F5F1EB;  /* muted panels, stat cards, table stripe */
@@ -9,37 +9,103 @@
   --color-border:        #E9E2D8;  /* default borders, dividers */
   --color-border-strong: #DAD1C4;  /* input borders, hover borders */
 
-  /* ---------- text ---------- */
   --color-text:          #211B2E;  /* primary text */
   --color-text-muted:    #6E6678;  /* secondary text */
   --color-text-subtle:   #9A92A2;  /* hints, captions, placeholders */
 
-  /* ---------- primary (violet) ---------- */
   --color-primary:        #6D28D9; /* primary accent, buttons, active */
   --color-primary-hover:  #5B21B6; /* hover / pressed primary, badge text */
   --color-primary-soft:   #EFE9FB; /* violet badge bg, active nav pill */
   --color-primary-softer: #F6F2FD; /* subtle violet panels (reasoning, flashcard back) */
   --color-on-primary:     #FFFFFF; /* text/icon on primary */
 
-  /* ---------- accent: sky ---------- */
   --color-sky:        #0EA5E9;
   --color-sky-soft:   #E3F4FD;
   --color-sky-text:   #075985;
 
-  /* ---------- status: success ---------- */
   --color-success:      #059669;
   --color-success-soft: #D9F2E6;
   --color-success-text: #065F46;
 
-  /* ---------- status: warning ---------- */
   --color-warning:      #C2710C;
   --color-warning-soft: #FBEBD2;
   --color-warning-text: #92400E;
 
-  /* ---------- status: danger ---------- */
   --color-danger:      #DC2626;
   --color-danger-soft: #FBE4E4;
   --color-danger-text: #991B1B;
+}
+
+.dark {
+  /* ---------- Dark Mode (Violet / Charcoal Dark) ---------- */
+  --color-bg:            #0A0810;  /* dark rich charcoal/violet background */
+  --color-surface:       #110E1B;  /* cards, navbar, inputs */
+  --color-surface-2:     #181427;  /* muted panels, stat cards, table stripe */
+  --color-surface-3:     #211B35;  /* track backgrounds, neutral badge bg */
+  --color-border:        #1E192F;  /* default borders, dividers */
+  --color-border-strong: #2D2647;  /* input borders, hover borders */
+
+  --color-text:          #F1F0F4;  /* primary text */
+  --color-text-muted:    #A8A1B2;  /* secondary text */
+  --color-text-subtle:   #797184;  /* hints, captions, placeholders */
+
+  --color-primary:        #A78BFA; /* primary accent, lighter violet for dark contrast */
+  --color-primary-hover:  #C4B5FD; /* hover / pressed primary, badge text */
+  --color-primary-soft:   #2E2548; /* violet badge bg, active nav pill */
+  --color-primary-softer: #0E0B1A; /* subtle violet panels (reasoning, flashcard back) */
+  --color-on-primary:     #0A0810; /* text/icon on primary */
+
+  --color-sky:        #38BDF8;
+  --color-sky-soft:   #0C3A53;
+  --color-sky-text:   #E0F2FE;
+
+  --color-success:      #34D399;
+  --color-success-soft: #0B462C;
+  --color-success-text: #D1FAE5;
+
+  --color-warning:      #FBBF24;
+  --color-warning-soft: #4A330B;
+  --color-warning-text: #FEF3C7;
+
+  --color-danger:      #F87171;
+  --color-danger-soft: #4F1414;
+  --color-danger-text: #FEE2E2;
+}
+
+@theme {
+  /* Dynamic colors using CSS variables from :root and .dark */
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-3: var(--color-surface-3);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-subtle: var(--color-text-subtle);
+
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-soft: var(--color-primary-soft);
+  --color-primary-softer: var(--color-primary-softer);
+  --color-on-primary: var(--color-on-primary);
+
+  --color-sky: var(--color-sky);
+  --color-sky-soft: var(--color-sky-soft);
+  --color-sky-text: var(--color-sky-text);
+
+  --color-success: var(--color-success);
+  --color-success-soft: var(--color-success-soft);
+  --color-success-text: var(--color-success-text);
+
+  --color-warning: var(--color-warning);
+  --color-warning-soft: var(--color-warning-soft);
+  --color-warning-text: var(--color-warning-text);
+
+  --color-danger: var(--color-danger);
+  --color-danger-soft: var(--color-danger-soft);
+  --color-danger-text: var(--color-danger-text);
 
   /* ---------- typography ---------- */
   --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
