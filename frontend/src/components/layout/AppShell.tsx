@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
+import { ThemeToggle } from "../ui/ThemeToggle";
 
 type AppShellProps = {
   children?: React.ReactNode;
@@ -71,6 +72,7 @@ export function AppShell({ children }: AppShellProps) {
                   <Plus size={14} />
                   New Board
                 </button>
+                <ThemeToggle />
                 {/* Avatar with Initials */}
                 <div 
                   onClick={() => setIsLogoutOpen(true)}
@@ -82,6 +84,7 @@ export function AppShell({ children }: AppShellProps) {
               </>
             ) : (
               <div className="flex items-center gap-4">
+                <ThemeToggle />
                 <Link to="/login" className="text-sm font-semibold text-text hover:text-primary transition-colors">
                   Log in
                 </Link>

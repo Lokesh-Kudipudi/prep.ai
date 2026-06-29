@@ -5,6 +5,18 @@
     <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>prep.ai — active-learning platform</title>
+    <!-- Initialize Theme (Prevents Flash of Light Mode in Dark Mode) -->
+    <script>
+      (function() {
+        const theme = localStorage.getItem('prepai.theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (theme === 'dark' || (!theme && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
     <!-- Google Fonts: Plus Jakarta Sans (400, 500, 600, 700, 800) and JetBrains Mono (400, 500) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
