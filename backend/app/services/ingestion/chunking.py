@@ -16,7 +16,7 @@ def chunk_documents(docs: list[Document]) -> list[TextNode]:
     
     # 1. Initialize Gemini embedding model
     embed_model = GeminiEmbedding(
-        model_name="models/text-embedding-004",
+        model_name="models/gemini-embedding-001",
         api_key=settings.GOOGLE_API_KEY
     )
     

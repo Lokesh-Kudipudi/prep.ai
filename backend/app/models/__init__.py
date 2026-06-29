@@ -6,5 +6,6 @@ from app.models.chunk import Chunk
 from app.models.quiz import Quiz, QuizQuestion, QuizAttempt
 from app.models.flashcard import Flashcard
 from app.models.tutor import TutorSession, TutorMessage, CodingSubmission
+from app.models.evaluation import EvaluationRun
 
 

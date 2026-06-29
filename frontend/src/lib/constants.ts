@@ -4,3 +4,5 @@ export const MAX_PDF_MB = 50;
 export const RETRIEVAL_TOP_K = 8;
 export const SOURCE_POLL_MS = 2500; // Ingestion status polling interval
 export const PAGE_SIZE = 20;
+export const THEME_KEY = "prepai.theme";
+

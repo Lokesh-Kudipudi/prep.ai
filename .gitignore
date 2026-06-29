@@ -1,6 +1,7 @@
 # Custom agent/project configs
 .agents/
 docs/
+note.txt
 
 # Environment configurations
 .env

@@ -41,7 +41,7 @@ REASON: <one-sentence explanation of why it failed or a confirmation statement>
 """
     try:
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-flash-lite-latest',
             contents=prompt,
         )
         response_text = response.text.strip()

@@ -22,3 +22,8 @@ class UserRead(UserBase):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+class UserUpdate(BaseModel):
+    full_name: str = Field(..., min_length=1, max_length=100)
+    email: EmailStr
+

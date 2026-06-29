@@ -7,6 +7,17 @@ import { AuthProvider } from "./auth/AuthContext";
 import { queryClient } from "./lib/queryClient";
 import "./index.css";
 
+// Initialize theme on app mount
+const savedTheme = localStorage.getItem("prepai.theme");
+if (
+  savedTheme === "dark" ||
+  (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
+) {
+  document.documentElement.classList.add("dark");
+} else {
+  document.documentElement.classList.remove("dark");
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

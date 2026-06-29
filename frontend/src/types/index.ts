@@ -112,12 +112,21 @@ export type CodingSubmission = {
   created_at: string;
 };
 
-export type EvalRun = {
+export type EvaluationRun = {
   id: string;
-  name: string;
-  faithfulness: number;
-  answer_relevance: number;
-  context_recall: number;
-  token_cost: number;
+  user_id: string;
+  status: "pending" | "running" | "completed" | "failed";
+  num_questions: number;
+  faithfulness_baseline: number | null;
+  faithfulness_improved: number | null;
+  answer_relevance_baseline: number | null;
+  answer_relevance_improved: number | null;
+  context_recall_baseline: number | null;
+  context_recall_improved: number | null;
+  token_cost_baseline: number | null;
+  token_cost_improved: number | null;
+  error_message: string | null;
   created_at: string;
+  updated_at: string;
 };
+

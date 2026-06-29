@@ -22,7 +22,7 @@ def get_retriever(board_id: str, top_k: int = None) -> VectorIndexRetriever:
     
     # 1. Initialize embedding model for query projection
     embed_model = GeminiEmbedding(
-        model_name="models/text-embedding-004",
+        model_name="models/gemini-embedding-001",
         api_key=settings.GOOGLE_API_KEY
     )
     

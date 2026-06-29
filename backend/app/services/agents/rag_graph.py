@@ -60,7 +60,7 @@ def generate_node(state: RagState) -> dict:
         
     # Generate content using the Gemini client
     response = client.models.generate_content(
-        model='gemini-2.0-flash',
+        model='gemini-flash-lite-latest',
         contents=prompt,
     )
     

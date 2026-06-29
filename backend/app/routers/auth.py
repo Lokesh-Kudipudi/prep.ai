@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.deps import get_db, get_current_user
 from app.models.user import User
-from app.schemas.user import UserCreate, UserLogin, UserRead, Token
+from app.schemas.user import UserCreate, UserLogin, UserRead, Token, UserUpdate
 from app.security import hash_password, verify_password, create_access_token
 
 logger = logging.getLogger(__name__)
@@ -62,3 +62,42 @@ def login(payload: UserLogin, db: Session = Depends(get_db)) -> Token:
 def get_me(current_user: User = Depends(get_current_user)) -> UserRead:
     """Retrieve details of the authenticated user"""
     return current_user
+
+
+@router.put("/profile", response_model=UserRead)
+def update_profile(
+    payload: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> UserRead:
+    """Update profile details of the authenticated user"""
+    logger.info("[router:auth] user %s updating profile details", current_user.email)
+    
+    # Check if email is being updated and is already taken
+    if payload.email != current_user.email:
+        existing_user = db.query(User).filter(User.email == payload.email).first()
+        if existing_user:
+            logger.warning("[router:auth] profile update failed: email %s already taken", payload.email)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email address already in use by another account"
+            )
+            
+    current_user.full_name = payload.full_name
+    current_user.email = payload.email
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)
+def delete_account(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Permanently delete user account and all owned assets"""
+    logger.info("[router:auth] user %s permanently deleting their account", current_user.email)
+    db.delete(current_user)
+    db.commit()
+    return
+

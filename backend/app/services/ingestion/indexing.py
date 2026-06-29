@@ -51,7 +51,7 @@ async def index_nodes(
 
     # 3. Create LlamaIndex QdrantVectorStore and run embedding pipeline
     embed_model = GeminiEmbedding(
-        model_name="models/text-embedding-004",
+        model_name="models/gemini-embedding-001",
         api_key=settings.GOOGLE_API_KEY
     )
     
