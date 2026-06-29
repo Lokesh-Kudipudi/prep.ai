@@ -10,10 +10,12 @@ import { ScoreBar } from "../components/ui/ScoreBar";
 import { TrendBadge } from "../components/ui/TrendBadge";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ActivityDot } from "../components/ui/ActivityDot";
+import { Modal } from "../components/ui/Modal";
 
 export function LandingPage() {
   const [inputText, setInputText] = useState("");
   const [isDark, setIsDark] = useState(false);
+  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
 
   function toggleDark() {
     const root = document.documentElement;
@@ -100,7 +102,7 @@ export function LandingPage() {
                 This is an inset Card with a muted background style and no shadows.
               </p>
             </Card>
-            <Card clickable onClick={() => alert("Card clicked!")}>
+             <Card clickable onClick={() => setIsCardModalOpen(true)}>
               <h3 className="text-h4 font-bold text-text mb-2">Clickable Card</h3>
               <p className="text-sm text-text-muted">
                 Hover over this card to see dynamic translation and drop shadow effects.
@@ -281,6 +283,25 @@ export function LandingPage() {
           />
         </section>
       </div>
+
+      {/* Visual Demo Modal */}
+      <Modal
+        isOpen={isCardModalOpen}
+        onClose={() => setIsCardModalOpen(false)}
+        title="Card Clicked!"
+        footer={
+          <Button variant="primary" size="sm" onClick={() => setIsCardModalOpen(false)}>
+            Close
+          </Button>
+        }
+      >
+        <div className="space-y-2">
+          <p>You have clicked the interactive demo card!</p>
+          <p className="text-xs text-text-muted">
+            This modal replaces the default browser <code>alert()</code> and matches prep.ai design tokens.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
+import { Modal } from "../ui/Modal";
+import { Button } from "../ui/Button";
 
 type AppShellProps = {
   children?: React.ReactNode;
@@ -10,6 +13,7 @@ export function AppShell({ children }: AppShellProps) {
   const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   const navLinks = [
     { label: "Boards", path: "/dashboard" },
@@ -24,9 +28,11 @@ export function AppShell({ children }: AppShellProps) {
         <div className="w-full max-w-[1120px] mx-auto px-6 flex justify-between items-center">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-[26px] h-[26px] bg-primary flex items-center justify-center rounded-[8px] text-on-primary font-extrabold text-sm select-none">
-              P
-            </div>
+            <img
+              src="/logo.png"
+              alt="prep.ai Logo"
+              className="w-[26px] h-[26px] object-contain rounded-[8px]"
+            />
             <span className="text-[17px] font-extrabold text-text tracking-tight">
               prep.ai
             </span>
@@ -67,9 +73,7 @@ export function AppShell({ children }: AppShellProps) {
                 </button>
                 {/* Avatar with Initials */}
                 <div 
-                  onClick={() => {
-                    if (confirm("Log out?")) logout();
-                  }}
+                  onClick={() => setIsLogoutOpen(true)}
                   className="w-[34px] h-[34px] rounded-full bg-primary-soft text-primary-hover hover:bg-primary/20 flex items-center justify-center font-bold text-xs cursor-pointer select-none border border-primary/10 transition-colors"
                   title="Click to logout"
                 >
@@ -107,6 +111,28 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         </div>
       </footer>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        isOpen={isLogoutOpen}
+        onClose={() => setIsLogoutOpen(false)}
+        title="Log out"
+        footer={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setIsLogoutOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" size="sm" onClick={() => {
+              setIsLogoutOpen(false);
+              logout();
+            }}>
+              Log out
+            </Button>
+          </>
+        }
+      >
+        Are you sure you want to log out of prep.ai?
+      </Modal>
     </div>
   );
 }
