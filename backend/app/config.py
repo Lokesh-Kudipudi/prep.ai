@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     
     # Third-Party Keys / Integrations
     GOOGLE_API_KEY: str = ""
+    LLAMA_CLOUD_API_KEY: str | None = None
     LANGSMITH_API_KEY: str = ""
     LANGSMITH_PROJECT: str = "prep-ai"
     LANGCHAIN_TRACING_V2: str = "false"
@@ -26,6 +27,8 @@ class Settings(BaseSettings):
     RETRIEVAL_TOP_K: int = 8
     CRITIC_MAX_CORRECTIONS: int = 2
     MAX_PDF_MB: int = 50
+    MAX_DOC_PAGES: int = 10
+    QDRANT_COLLECTION: str = "chunks"
 
     model_config = SettingsConfigDict(
         env_file=".env",

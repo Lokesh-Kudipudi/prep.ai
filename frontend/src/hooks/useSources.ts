@@ -1,11 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { uploadPdf, triggerScraping, listSources, getSourceStatus, Source } from "../api/sources";
+import { SOURCE_POLL_MS } from "../lib/constants";
 
 export function useSources(boardId: string | undefined) {
   return useQuery<Source[]>({
     queryKey: ["sources", boardId],
     queryFn: () => listSources(boardId!),
     enabled: !!boardId,
+    refetchInterval: (query) => {
+      const sources = query.state.data;
+      const hasPendingOrProcessing = sources?.some(
+        (s) => s.status === "pending" || s.status === "processing"
+      );
+      return hasPendingOrProcessing ? SOURCE_POLL_MS : false;
+    },
   });
 }
 
@@ -15,9 +23,9 @@ export function useSourceStatus(sourceId: string | undefined) {
     queryFn: () => getSourceStatus(sourceId!),
     enabled: !!sourceId,
     refetchInterval: (query) => {
-      // Poll every 1 second while status is pending or processing
+      // Poll while status is pending or processing
       const status = query.state.data?.status;
-      return status === "pending" || status === "processing" ? 1000 : false;
+      return status === "pending" || status === "processing" ? SOURCE_POLL_MS : false;
     },
   });
 }

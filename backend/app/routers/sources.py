@@ -1,5 +1,6 @@
 import logging
-import time
+import os
+import shutil
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, BackgroundTasks
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -9,6 +10,7 @@ from app.models.user import User
 from app.models.board import Board
 from app.models.source import Source
 from app.schemas.source import SourceRead, SourceStatusRead
+from app.services.ingestion.pipeline import run_ingestion_task
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["sources"])
@@ -17,53 +19,16 @@ router = APIRouter(tags=["sources"])
 class TechDocFetch(BaseModel):
     query: str
 
-def simulate_ingestion_background_task(source_id: str, title: str, db_session_creator):
-    """Simulates background parsing and indexing of a source file"""
-    logger.info("[background] Starting ingestion simulation for source: %s", source_id)
-    
-    # 1. Transition to "processing" after 2 seconds
-    time.sleep(2.0)
-    db: Session = db_session_creator()
-    try:
-        source = db.query(Source).filter(Source.id == source_id).first()
-        if source:
-            source.status = "processing"
-            db.commit()
-            logger.info("[background] Source %s status -> processing", source_id)
-    except Exception as e:
-        logger.error("[background] Failed to update source %s status to processing: %s", source_id, e)
-    finally:
-        db.close()
-
-    # 2. Transition to "indexed" (or "failed" if keyword 'error' is in title) after 3 more seconds
-    time.sleep(3.0)
-    db = db_session_creator()
-    try:
-        source = db.query(Source).filter(Source.id == source_id).first()
-        if source:
-            if "error" in title.lower():
-                source.status = "failed"
-                source.error_message = "Mock Ingestion Error: Failed to parse document contents or resolve URL schema."
-                logger.warning("[background] Source %s status -> failed", source_id)
-            else:
-                source.status = "indexed"
-                logger.info("[background] Source %s status -> indexed", source_id)
-            db.commit()
-    except Exception as e:
-        logger.error("[background] Failed to update source %s final status: %s", source_id, e)
-    finally:
-        db.close()
-
 
 @router.post("/boards/{board_id}/sources/pdf", response_model=SourceRead, status_code=status.HTTP_201_CREATED)
-def upload_pdf_source(
+async def upload_pdf_source(
     board_id: str,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ) -> SourceRead:
-    """Upload a learning source PDF file and queue mock background parsing"""
+    """Upload a learning source PDF file and queue background parsing"""
     # Verify board ownership
     board = db.query(Board).filter(Board.id == board_id, Board.user_id == current_user.id).first()
     if not board:
@@ -72,24 +37,39 @@ def upload_pdf_source(
             detail="Board not found or access denied"
         )
     
+    # Save the file to disk locally at /app/uploads
+    upload_dir = "/app/uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    file_hex = uuid_filename(file.filename)
+    save_path = os.path.join(upload_dir, file_hex)
+    
+    try:
+        with open(save_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+    except Exception as e:
+        logger.error("[router:sources] Failed to save uploaded PDF: %s", e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to save uploaded file on server."
+        )
+    
     new_source = Source(
         board_id=board_id,
         title=file.filename,
         type="PDF",
-        path=f"/uploads/{uuid_filename(file.filename)}",
+        path=f"/uploads/{file_hex}",
         status="pending"
     )
     db.add(new_source)
     db.commit()
     db.refresh(new_source)
     
-    # Delegate simulation task to background threads
-    # Pass a database session generator to prevent threading session leaks
+    # Delegate parsing/ingestion to background tasks
     from app.database import SessionLocal
     background_tasks.add_task(
-        simulate_ingestion_background_task,
+        run_ingestion_task,
         new_source.id,
-        file.filename,
         SessionLocal
     )
     
@@ -98,7 +78,7 @@ def upload_pdf_source(
 
 
 @router.post("/boards/{board_id}/sources/fetch", response_model=SourceRead, status_code=status.HTTP_201_CREATED)
-def fetch_tech_docs(
+async def fetch_tech_docs(
     board_id: str,
     payload: TechDocFetch,
     background_tasks: BackgroundTasks,
@@ -129,11 +109,11 @@ def fetch_tech_docs(
     db.commit()
     db.refresh(new_source)
     
+    # Delegate web crawling to background tasks
     from app.database import SessionLocal
     background_tasks.add_task(
-        simulate_ingestion_background_task,
+        run_ingestion_task,
         new_source.id,
-        payload.query,
         SessionLocal
     )
     
@@ -179,6 +159,7 @@ def get_source_status(
             detail="Source task not found or access denied"
         )
     return source
+
 
 def uuid_filename(filename: str) -> str:
     import uuid
