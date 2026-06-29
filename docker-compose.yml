@@ -36,7 +36,19 @@ services:
     ports:
       - "2000:2000"
     volumes:
-      - piston_data:/piston/data
+      - piston_data:/piston
+    entrypoint: >
+      sh -c "
+      node -e \"
+        require('nocamel');
+        const Package = require('/piston_api/src/package');
+        Promise.all([
+          Package.get_package('python', '3.12.0').then(p => p.installed || p.install()),
+          Package.get_package('node', '20.11.1').then(p => p.installed || p.install())
+        ]).then(() => console.log('Runtimes ready.'));
+      \" &&
+      exec /piston_api/src/docker-entrypoint.sh
+      "
 
   backend:
     build:
