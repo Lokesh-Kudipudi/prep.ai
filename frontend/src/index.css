@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---------- surfaces ---------- */
+  --color-bg:            #FBF8F4;  /* warm off-white page background */
+  --color-surface:       #FFFFFF;  /* cards, navbar, inputs */
+  --color-surface-2:     #F5F1EB;  /* muted panels, stat cards, table stripe */
+  --color-surface-3:     #EFEAE2;  /* track backgrounds, neutral badge bg */
+  --color-border:        #E9E2D8;  /* default borders, dividers */
+  --color-border-strong: #DAD1C4;  /* input borders, hover borders */
+
+  /* ---------- text ---------- */
+  --color-text:          #211B2E;  /* primary text */
+  --color-text-muted:    #6E6678;  /* secondary text */
+  --color-text-subtle:   #9A92A2;  /* hints, captions, placeholders */
+
+  /* ---------- primary (violet) ---------- */
+  --color-primary:        #6D28D9; /* primary accent, buttons, active */
+  --color-primary-hover:  #5B21B6; /* hover / pressed primary, badge text */
+  --color-primary-soft:   #EFE9FB; /* violet badge bg, active nav pill */
+  --color-primary-softer: #F6F2FD; /* subtle violet panels (reasoning, flashcard back) */
+  --color-on-primary:     #FFFFFF; /* text/icon on primary */
+
+  /* ---------- accent: sky ---------- */
+  --color-sky:        #0EA5E9;
+  --color-sky-soft:   #E3F4FD;
+  --color-sky-text:   #075985;
+
+  /* ---------- status: success ---------- */
+  --color-success:      #059669;
+  --color-success-soft: #D9F2E6;
+  --color-success-text: #065F46;
+
+  /* ---------- status: warning ---------- */
+  --color-warning:      #C2710C;
+  --color-warning-soft: #FBEBD2;
+  --color-warning-text: #92400E;
+
+  /* ---------- status: danger ---------- */
+  --color-danger:      #DC2626;
+  --color-danger-soft: #FBE4E4;
+  --color-danger-text: #991B1B;
+
+  /* ---------- typography ---------- */
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --text-display: 50px;  /* landing hero */
+  --text-h1:      28px;  /* page titles */
+  --text-h2:      22px;  /* card/section heading large */
+  --text-h3:      18px;  /* section title */
+  --text-h4:      16px;  /* card title */
+  --text-body:    14px;  /* default body */
+  --text-sm:      13px;  /* secondary */
+  --text-xs:      12px;  /* captions, badges */
+
+  /* ---------- spacing (scale) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---------- radii ---------- */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  /* ---------- shadows ---------- */
+  --shadow-sm: 0 1px 2px rgba(33,27,46,.05);
+  --shadow-md: 0 4px 14px rgba(33,27,46,.07);
+  --shadow-lg: 0 12px 32px rgba(33,27,46,.10);
+  --ring: 0 0 0 3px rgba(109,40,217,.22);
+
+  /* ---------- layout ---------- */
+  --layout-maxw: 1120px;
+  --layout-nav-h: 64px;
+}
