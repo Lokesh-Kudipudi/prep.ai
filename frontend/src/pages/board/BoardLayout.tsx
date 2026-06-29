@@ -1,48 +1,48 @@
-import { Outlet, useParams, Link, useLocation } from "react-router-dom";
+import { Outlet, useParams, Link } from "react-router-dom";
+import { useBoardDetails } from "../../hooks/useBoards";
+import { BoardSubTabs } from "../../components/layout/BoardSubTabs";
 
 export function BoardLayout() {
   const { boardId } = useParams<{ boardId: string }>();
-  const location = useLocation();
+  const { data: board, isLoading, isError } = useBoardDetails(boardId);
 
-  const tabs = [
-    { id: "sources", label: "Sources", path: `/boards/${boardId}/sources` },
-    { id: "quiz", label: "Quiz", path: `/boards/${boardId}/quiz` },
-    { id: "flashcards", label: "Flashcards", path: `/boards/${boardId}/flashcards` },
-    { id: "tutor", label: "Tutor Session", path: `/boards/${boardId}/tutor` },
-  ];
+  if (isLoading) {
+    return (
+      <div className="py-8 space-y-6 animate-pulse">
+        <div className="h-4 bg-surface-3 rounded w-1/4" />
+        <div className="h-8 bg-surface-3 rounded w-1/3" />
+        <div className="h-10 bg-surface-3 rounded w-full" />
+        <div className="h-48 bg-surface-3 rounded w-full" />
+      </div>
+    );
+  }
+
+  if (isError || !board) {
+    return (
+      <div className="py-12 text-center max-w-md mx-auto space-y-4">
+        <div className="bg-danger-soft border border-danger/20 rounded-md p-4 text-sm text-danger-text font-semibold">
+          Error loading workspace. The board does not exist or you do not have permission to view it.
+        </div>
+        <Link to="/dashboard" className="text-primary font-semibold hover:underline text-sm block">
+          Back to Dashboard
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8">
       {/* Breadcrumbs */}
       <div className="text-xs font-semibold text-text-subtle mb-2 uppercase tracking-wider">
-        <Link to="/dashboard" className="hover:text-primary">Boards</Link> / <span className="text-text-muted">Board details</span>
+        <Link to="/dashboard" className="hover:text-primary">Boards</Link> / <span className="text-text-muted">{board.name}</span>
       </div>
 
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-h1 font-extrabold text-text">Board Workspace</h1>
+        <h1 className="text-h1 font-extrabold text-text">{board.name}</h1>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-border mb-6">
-        <nav className="flex space-x-8" aria-label="Tabs">
-          {tabs.map((tab) => {
-            const isActive = location.pathname.endsWith(tab.id) || (tab.id === "sources" && location.pathname.endsWith(boardId ?? ""));
-            return (
-              <Link
-                key={tab.id}
-                to={tab.path}
-                className={`py-4 px-1 border-b-2 font-semibold text-sm ${
-                  isActive
-                    ? "border-primary text-primary"
-                    : "border-transparent text-text-muted hover:text-text hover:border-border-strong"
-                }`}
-              >
-                {tab.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+      {/* Sub-Navigation Tabs */}
+      <BoardSubTabs boardId={board.id} />
 
       {/* Nested View */}
       <Outlet />

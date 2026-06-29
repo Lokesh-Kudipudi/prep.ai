@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth
+from app.routers import auth, boards, sources
 
 app = FastAPI(
     title="prep.ai API",
@@ -18,6 +18,8 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/api")
+app.include_router(boards.router, prefix="/api")
+app.include_router(sources.router, prefix="/api")
 
 @app.get("/api/health")
 def health_check():
