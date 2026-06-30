@@ -177,11 +177,16 @@ async def run_reproduction_eval():
             from qdrant_client import QdrantClient
             from llama_index.vector_stores.qdrant import QdrantVectorStore
             from llama_index.core import VectorStoreIndex, Document, StorageContext
-            from llama_index.embeddings.gemini import GeminiEmbedding
+            from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
             
-            q_client = QdrantClient(url=settings.QDRANT_URL)
+            q_client = QdrantClient(url=settings.QDRANT_URL, check_compatibility=False)
             vector_store = QdrantVectorStore(collection_name=settings.QDRANT_COLLECTION, client=q_client)
-            embed_model = GeminiEmbedding(model_name="models/gemini-embedding-001", api_key=settings.GOOGLE_API_KEY)
+            from app.services.vectorstore import RateLimitedGoogleGenAIEmbedding
+            embed_model = RateLimitedGoogleGenAIEmbedding(
+                model_name="models/gemini-embedding-2", 
+                api_key=settings.GOOGLE_API_KEY,
+                embedding_config={"output_dimensionality": 768}
+            )
             
             storage_context = StorageContext.from_defaults(vector_store=vector_store)
             

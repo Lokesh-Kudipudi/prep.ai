@@ -43,3 +43,7 @@ export async function getSourceStatus(sourceId: string): Promise<SourceStatus> {
   const response = await apiClient.get<SourceStatus>(`/sources/${sourceId}`);
   return response.data;
 }
+
+export async function deleteSource(sourceId: string): Promise<void> {
+  await apiClient.delete(`/sources/${sourceId}`);
+}

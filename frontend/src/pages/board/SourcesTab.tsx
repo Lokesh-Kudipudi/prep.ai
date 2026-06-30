@@ -1,7 +1,7 @@
 import { useState, useRef, DragEvent, ChangeEvent } from "react";
 import { useParams } from "react-router-dom";
-import { FileText, Globe, Plus, AlertCircle, Loader2 } from "lucide-react";
-import { useSources, useUploadPdf, useTriggerScraping } from "../../hooks/useSources";
+import { FileText, Globe, Plus, AlertCircle, Loader2, Trash2 } from "lucide-react";
+import { useSources, useUploadPdf, useTriggerScraping, useDeleteSource } from "../../hooks/useSources";
 import { Button } from "../../components/ui/Button";
 import { Badge, BadgeVariant } from "../../components/ui/Badge";
 import { Card } from "../../components/ui/Card";
@@ -15,10 +15,12 @@ export function SourcesTab() {
   const { data: sources, isLoading, isError } = useSources(boardId);
   const uploadPdfMutation = useUploadPdf(boardId);
   const triggerScrapingMutation = useTriggerScraping(boardId);
+  const deleteSourceMutation = useDeleteSource(boardId);
 
   // Modal & Tab States
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"pdf" | "web">("pdf");
+  const [deletingSourceId, setDeletingSourceId] = useState<string | null>(null);
 
   // PDF Upload States
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -37,6 +39,15 @@ export function SourcesTab() {
     setUploadError(null);
     setWebQuery("");
     setWebError(null);
+  }
+
+  function handleDeleteConfirm() {
+    if (!deletingSourceId) return;
+    deleteSourceMutation.mutate(deletingSourceId, {
+      onSuccess: () => {
+        setDeletingSourceId(null);
+      },
+    });
   }
 
   // Drag & Drop Handlers
@@ -225,7 +236,17 @@ export function SourcesTab() {
                   </p>
                 </div>
               </div>
-              <div>{getStatusBadge(source.status, source.error_message)}</div>
+              <div className="flex items-center gap-3">
+                {getStatusBadge(source.status, source.error_message)}
+                <Button
+                  variant="ghost"
+                  onClick={() => setDeletingSourceId(source.id)}
+                  className="text-danger-text hover:bg-danger-soft p-2 shrink-0 border border-transparent shadow-none"
+                  title="Delete source"
+                >
+                  <Trash2 size={16} />
+                </Button>
+              </div>
             </Card>
           ))}
         </div>
@@ -358,6 +379,36 @@ export function SourcesTab() {
               </div>
             </form>
           )}
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!deletingSourceId}
+        onClose={() => setDeletingSourceId(null)}
+        title="Delete Source"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text-muted leading-relaxed">
+            Are you sure you want to delete this source? This will permanently remove the document, its Postgres database records, and all corresponding semantic chunks from the vector database.
+          </p>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="secondary" onClick={() => setDeletingSourceId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleDeleteConfirm}
+              disabled={deleteSourceMutation.isPending}
+              className="min-w-[100px]"
+            >
+              {deleteSourceMutation.isPending ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                "Delete"
+              )}
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>

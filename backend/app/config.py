@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     PISTON_URL: str = "http://piston:2000"
     
     # Authentication Settings
-    JWT_SECRET: str = "prepai_super_secret_key_12345"
+    JWT_SECRET: str = "prepai_super_secret_key_12345_67890"
     JWT_EXPIRE_MINUTES: int = 1440 # 24 hours
     
     # Third-Party Keys / Integrations

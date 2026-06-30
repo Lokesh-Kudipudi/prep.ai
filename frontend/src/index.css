@@ -2,72 +2,100 @@
 
 :root {
   /* ---------- Light Mode (Violet / Warm Light) ---------- */
-  --color-bg:            #FBF8F4;  /* warm off-white page background */
-  --color-surface:       #FFFFFF;  /* cards, navbar, inputs */
-  --color-surface-2:     #F5F1EB;  /* muted panels, stat cards, table stripe */
-  --color-surface-3:     #EFEAE2;  /* track backgrounds, neutral badge bg */
-  --color-border:        #E9E2D8;  /* default borders, dividers */
-  --color-border-strong: #DAD1C4;  /* input borders, hover borders */
+  --color-bg: #FBF8F4;
+  /* warm off-white page background */
+  --color-surface: #FFFFFF;
+  /* cards, navbar, inputs */
+  --color-surface-2: #F5F1EB;
+  /* muted panels, stat cards, table stripe */
+  --color-surface-3: #EFEAE2;
+  /* track backgrounds, neutral badge bg */
+  --color-border: #E9E2D8;
+  /* default borders, dividers */
+  --color-border-strong: #DAD1C4;
+  /* input borders, hover borders */
 
-  --color-text:          #211B2E;  /* primary text */
-  --color-text-muted:    #6E6678;  /* secondary text */
-  --color-text-subtle:   #9A92A2;  /* hints, captions, placeholders */
+  --color-text: #211B2E;
+  /* primary text */
+  --color-text-muted: #6E6678;
+  /* secondary text */
+  --color-text-subtle: #9A92A2;
+  /* hints, captions, placeholders */
 
-  --color-primary:        #6D28D9; /* primary accent, buttons, active */
-  --color-primary-hover:  #5B21B6; /* hover / pressed primary, badge text */
-  --color-primary-soft:   #EFE9FB; /* violet badge bg, active nav pill */
-  --color-primary-softer: #F6F2FD; /* subtle violet panels (reasoning, flashcard back) */
-  --color-on-primary:     #FFFFFF; /* text/icon on primary */
+  --color-primary: #6D28D9;
+  /* primary accent, buttons, active */
+  --color-primary-hover: #5B21B6;
+  /* hover / pressed primary, badge text */
+  --color-primary-soft: #EFE9FB;
+  /* violet badge bg, active nav pill */
+  --color-primary-softer: #F6F2FD;
+  /* subtle violet panels (reasoning, flashcard back) */
+  --color-on-primary: #FFFFFF;
+  /* text/icon on primary */
 
-  --color-sky:        #0EA5E9;
-  --color-sky-soft:   #E3F4FD;
-  --color-sky-text:   #075985;
+  --color-sky: #0EA5E9;
+  --color-sky-soft: #E3F4FD;
+  --color-sky-text: #075985;
 
-  --color-success:      #059669;
+  --color-success: #059669;
   --color-success-soft: #D9F2E6;
   --color-success-text: #065F46;
 
-  --color-warning:      #C2710C;
+  --color-warning: #C2710C;
   --color-warning-soft: #FBEBD2;
   --color-warning-text: #92400E;
 
-  --color-danger:      #DC2626;
+  --color-danger: #DC2626;
   --color-danger-soft: #FBE4E4;
   --color-danger-text: #991B1B;
 }
 
 .dark {
   /* ---------- Dark Mode (Violet / Charcoal Dark) ---------- */
-  --color-bg:            #0A0810;  /* dark rich charcoal/violet background */
-  --color-surface:       #110E1B;  /* cards, navbar, inputs */
-  --color-surface-2:     #181427;  /* muted panels, stat cards, table stripe */
-  --color-surface-3:     #211B35;  /* track backgrounds, neutral badge bg */
-  --color-border:        #1E192F;  /* default borders, dividers */
-  --color-border-strong: #2D2647;  /* input borders, hover borders */
+  --color-bg: #030206;
+  /* dark rich charcoal/violet background */
+  --color-surface: #09070e;
+  /* cards, navbar, inputs */
+  --color-surface-2: #181427;
+  /* muted panels, stat cards, table stripe */
+  --color-surface-3: #211B35;
+  /* track backgrounds, neutral badge bg */
+  --color-border: #0f0d17;
+  /* default borders, dividers */
+  --color-border-strong: #2D2647;
+  /* input borders, hover borders */
 
-  --color-text:          #F1F0F4;  /* primary text */
-  --color-text-muted:    #A8A1B2;  /* secondary text */
-  --color-text-subtle:   #797184;  /* hints, captions, placeholders */
+  --color-text: #F1F0F4;
+  /* primary text */
+  --color-text-muted: #A8A1B2;
+  /* secondary text */
+  --color-text-subtle: #797184;
+  /* hints, captions, placeholders */
 
-  --color-primary:        #A78BFA; /* primary accent, lighter violet for dark contrast */
-  --color-primary-hover:  #C4B5FD; /* hover / pressed primary, badge text */
-  --color-primary-soft:   #2E2548; /* violet badge bg, active nav pill */
-  --color-primary-softer: #0E0B1A; /* subtle violet panels (reasoning, flashcard back) */
-  --color-on-primary:     #0A0810; /* text/icon on primary */
+  --color-primary: #A78BFA;
+  /* primary accent, lighter violet for dark contrast */
+  --color-primary-hover: #C4B5FD;
+  /* hover / pressed primary, badge text */
+  --color-primary-soft: #2E2548;
+  /* violet badge bg, active nav pill */
+  --color-primary-softer: #0E0B1A;
+  /* subtle violet panels (reasoning, flashcard back) */
+  --color-on-primary: #0A0810;
+  /* text/icon on primary */
 
-  --color-sky:        #38BDF8;
-  --color-sky-soft:   #0C3A53;
-  --color-sky-text:   #E0F2FE;
+  --color-sky: #38BDF8;
+  --color-sky-soft: #0C3A53;
+  --color-sky-text: #E0F2FE;
 
-  --color-success:      #34D399;
+  --color-success: #34D399;
   --color-success-soft: #0B462C;
   --color-success-text: #D1FAE5;
 
-  --color-warning:      #FBBF24;
+  --color-warning: #FBBF24;
   --color-warning-soft: #4A330B;
   --color-warning-text: #FEF3C7;
 
-  --color-danger:      #F87171;
+  --color-danger: #F87171;
   --color-danger-soft: #4F1414;
   --color-danger-text: #FEE2E2;
 }
@@ -111,14 +139,22 @@
   --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --text-display: 50px;  /* landing hero */
-  --text-h1:      28px;  /* page titles */
-  --text-h2:      22px;  /* card/section heading large */
-  --text-h3:      18px;  /* section title */
-  --text-h4:      16px;  /* card title */
-  --text-body:    14px;  /* default body */
-  --text-sm:      13px;  /* secondary */
-  --text-xs:      12px;  /* captions, badges */
+  --text-display: 50px;
+  /* landing hero */
+  --text-h1: 28px;
+  /* page titles */
+  --text-h2: 22px;
+  /* card/section heading large */
+  --text-h3: 18px;
+  /* section title */
+  --text-h4: 16px;
+  /* card title */
+  --text-body: 14px;
+  /* default body */
+  --text-sm: 13px;
+  /* secondary */
+  --text-xs: 12px;
+  /* captions, badges */
 
   /* ---------- spacing (scale) ---------- */
   --space-1: 4px;
@@ -133,17 +169,17 @@
   --space-16: 64px;
 
   /* ---------- radii ---------- */
-  --radius-sm:   6px;
-  --radius-md:   10px;
-  --radius-lg:   14px;
-  --radius-xl:   20px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
   /* ---------- shadows ---------- */
-  --shadow-sm: 0 1px 2px rgba(33,27,46,.05);
-  --shadow-md: 0 4px 14px rgba(33,27,46,.07);
-  --shadow-lg: 0 12px 32px rgba(33,27,46,.10);
-  --ring: 0 0 0 3px rgba(109,40,217,.22);
+  --shadow-sm: 0 1px 2px rgba(33, 27, 46, .05);
+  --shadow-md: 0 4px 14px rgba(33, 27, 46, .07);
+  --shadow-lg: 0 12px 32px rgba(33, 27, 46, .10);
+  --ring: 0 0 0 3px rgba(109, 40, 217, .22);
 
   /* ---------- layout ---------- */
   --layout-maxw: 1120px;

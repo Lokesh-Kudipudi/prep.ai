@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { MessageSquare, Sparkles, Loader2, Send, Power, Code, Play, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import Editor from "@monaco-editor/react";
+import { MessageSquare, Sparkles, Loader2, Send, Power, Code, Play, CheckCircle2, ChevronDown, ChevronUp, PanelLeftClose, PanelLeftOpen, Trash2 } from "lucide-react";
 import {
   useTutorSessions,
   useTutorSession,
@@ -8,7 +9,8 @@ import {
   useSendTutorMessage,
   useRunCode,
   useSubmitCode,
-  useStopTutorSession
+  useStopTutorSession,
+  useDeleteTutorSession
 } from "../../hooks/useTutor";
 import { useSources } from "../../hooks/useSources";
 import { Button } from "../../components/ui/Button";
@@ -16,7 +18,18 @@ import { Badge } from "../../components/ui/Badge";
 import { Card } from "../../components/ui/Card";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { Input } from "../../components/ui/Input";
+import { Modal } from "../../components/ui/Modal";
 import { cn } from "../../lib/utils";
+
+function getMonacoLanguage(lang: string | undefined): string {
+  if (!lang) return "python";
+  const l = lang.toLowerCase().trim();
+  if (l === "c++" || l === "cpp") return "cpp";
+  if (l === "c#" || l === "csharp") return "csharp";
+  if (l === "js") return "javascript";
+  if (l === "ts") return "typescript";
+  return l;
+}
 
 export function TutorTab() {
   const { boardId } = useParams<{ boardId: string }>();
@@ -35,13 +48,16 @@ export function TutorTab() {
   const runCodeMutation = useRunCode(activeSessionId || undefined);
   const submitCodeMutation = useSubmitCode(activeSessionId || undefined);
   const stopSessionMutation = useStopTutorSession(activeSessionId || undefined);
+  const deleteSessionMutation = useDeleteTutorSession(boardId);
 
   // UI state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [topicInput, setTopicInput] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [codeValue, setCodeValue] = useState("");
   const [consoleOutput, setConsoleOutput] = useState<{ stdout: string; stderr: string } | null>(null);
   const [expandedReviewId, setExpandedReviewId] = useState<string | null>(null);
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom on new messages
@@ -91,6 +107,29 @@ export function TutorTab() {
         },
       }
     );
+  }
+
+  function handleDeleteClick(e: React.MouseEvent, sessionId: string) {
+    e.stopPropagation();
+    setSessionToDelete(sessionId);
+  }
+
+  function confirmDeleteSession() {
+    if (!sessionToDelete) return;
+    deleteSessionMutation.mutate(sessionToDelete, {
+      onSuccess: () => {
+        const deletedId = sessionToDelete;
+        setSessionToDelete(null);
+        if (activeSessionId === deletedId) {
+          const remaining = sessions?.filter((s) => s.id !== deletedId) || [];
+          if (remaining.length > 0) {
+            setActiveSessionId(remaining[0].id);
+          } else {
+            setActiveSessionId(null);
+          }
+        }
+      },
+    });
   }
 
   function handleSendMessage(e: React.FormEvent) {
@@ -162,11 +201,11 @@ export function TutorTab() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch min-h-[500px]">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch h-[calc(100vh-115px)] min-h-0 overflow-hidden">
       {/* 1. Left Sidebar: Lesson topics list */}
-      <div className="lg:col-span-1 flex flex-col gap-4">
+      <div className={cn("lg:col-span-1 flex flex-col gap-4 min-h-0 transition-all duration-300", !isSidebarOpen && "hidden")}>
         {/* Create new lesson Form */}
-        <Card className="p-4 bg-surface border border-border rounded-lg">
+        <Card className="p-4 bg-surface border border-border rounded-lg shrink-0">
           <form onSubmit={handleCreateSession} className="space-y-3">
             <h4 className="text-[12px] font-bold text-text-muted uppercase tracking-wider">Start New Lesson</h4>
             <Input
@@ -193,52 +232,75 @@ export function TutorTab() {
         </Card>
 
         {/* Existing sessions */}
-        <Card className="flex-1 p-4 bg-surface border border-border rounded-lg flex flex-col gap-3 min-h-[300px]">
+        <Card className="flex-1 p-4 bg-surface border border-border rounded-lg flex flex-col gap-3 min-h-0">
           <h4 className="text-[12px] font-bold text-text-muted uppercase tracking-wider">Lessons List</h4>
           {!sessions || sessions.length === 0 ? (
             <p className="text-xs text-text-subtle italic text-center py-6">No lessons started yet.</p>
           ) : (
-            <div className="flex flex-col gap-2 overflow-y-auto max-h-[400px]">
-              {sessions.map((sess) => (
-                <button
-                  key={sess.id}
-                  onClick={() => {
-                    setActiveSessionId(sess.id);
-                    setConsoleOutput(null);
-                  }}
-                  className={cn(
-                    "text-left p-3 rounded-lg border text-xs font-bold transition-all duration-150 flex items-center justify-between cursor-pointer",
-                    activeSessionId === sess.id
-                      ? "bg-primary-soft text-primary-hover border-primary-hover/30"
-                      : "bg-surface-2 hover:bg-surface-3 border-border"
-                  )}
-                >
-                  <span className="truncate max-w-[120px]">{sess.topic}</span>
-                  <Badge variant={sess.status === "active" ? "success" : "neutral"} className="scale-[0.85]">
-                    {sess.status === "active" ? "Active" : "Closed"}
-                  </Badge>
-                </button>
-              ))}
+            <div className="flex flex-col gap-2 overflow-y-auto flex-1 min-h-0 pr-1">
+              {sessions.map((sess) => {
+                const isSelected = activeSessionId === sess.id;
+                return (
+                  <div
+                    key={sess.id}
+                    onClick={() => {
+                      setActiveSessionId(sess.id);
+                      setConsoleOutput(null);
+                    }}
+                    className={cn(
+                      "group p-3 rounded-lg border text-xs font-bold transition-all duration-150 flex items-center justify-between cursor-pointer relative",
+                      isSelected
+                        ? "bg-primary-soft text-primary-hover border-primary-hover/30"
+                        : "bg-surface-2 hover:bg-surface-3 border-border"
+                    )}
+                  >
+                    <span className="truncate max-w-[110px]">{sess.topic}</span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Badge variant={sess.status === "active" ? "success" : "neutral"} className="scale-[0.85]">
+                        {sess.status === "active" ? "Active" : "Closed"}
+                      </Badge>
+                      <button
+                        onClick={(e) => handleDeleteClick(e, sess.id)}
+                        disabled={deleteSessionMutation.isPending}
+                        className="text-text-muted hover:text-danger opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 rounded hover:bg-surface-3 transition-all cursor-pointer shrink-0"
+                        title="Delete session"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </Card>
       </div>
 
       {/* 2. Main Workspace: Chat thread + Editor split */}
-      <div className="lg:col-span-3 flex gap-6 items-stretch">
+      <div className={cn("flex gap-6 items-stretch min-h-0", isSidebarOpen ? "lg:col-span-3" : "lg:col-span-4")}>
         <Card
           className={cn(
-            "flex flex-col p-5 bg-surface border border-border rounded-lg shadow-sm transition-all duration-300 w-full",
+            "flex flex-col p-5 bg-surface border border-border rounded-lg shadow-sm transition-all duration-300 w-full min-h-0",
             activeTask ? "w-1/2" : "w-full"
           )}
         >
           {activeSession ? (
-            <div className="flex-1 flex flex-col justify-between h-[520px]">
+            <div className="flex-1 flex flex-col justify-between min-h-0">
               {/* Chat Header */}
               <div className="flex justify-between items-center pb-3 border-b border-border mb-4">
-                <div>
-                  <h3 className="text-sm font-bold text-text">{activeSession.topic}</h3>
-                  <p className="text-[11px] text-text-subtle">Personalized AI Tutor dialogue loop</p>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className="text-text-muted hover:text-text p-1.5 rounded-lg border border-transparent shadow-none shrink-0"
+                    title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                  >
+                    {isSidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+                  </Button>
+                  <div>
+                    <h3 className="text-sm font-bold text-text">{activeSession.topic}</h3>
+                    <p className="text-[11px] text-text-subtle">Personalized AI Tutor dialogue loop</p>
+                  </div>
                 </div>
                 {activeSession.status === "active" && (
                   <Button
@@ -255,7 +317,7 @@ export function TutorTab() {
               </div>
 
               {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto space-y-4 pr-1 text-sm max-h-[380px]">
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1 text-sm min-h-0">
                 {messages.map((msg) => {
                   if (msg.role === "system") {
                     return (
@@ -347,20 +409,33 @@ export function TutorTab() {
               )}
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-6 h-[500px]">
-              <MessageSquare className="text-text-subtle mb-3" size={32} />
-              <h4 className="text-sm font-bold text-text">No active lesson selected</h4>
-              <p className="text-xs text-text-muted mt-1 max-w-[280px] leading-relaxed">
-                Choose an ongoing session from the sidebar or enter a topic to start a personalized learning loop.
-              </p>
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="flex justify-start items-center pb-3 border-b border-border mb-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="text-text-muted hover:text-text p-1.5 rounded-lg border border-transparent shadow-none shrink-0"
+                  title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+                >
+                  {isSidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+                </Button>
+                <span className="text-xs font-bold text-text-muted uppercase ml-2">Tutor Workspace</span>
+              </div>
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 h-[400px]">
+                <MessageSquare className="text-text-subtle mb-3" size={32} />
+                <h4 className="text-sm font-bold text-text">No active lesson selected</h4>
+                <p className="text-xs text-text-muted mt-1 max-w-[280px] leading-relaxed">
+                  {isSidebarOpen ? "Choose an ongoing session from the sidebar or enter a topic to start a personalized learning loop." : "Expand the sidebar using the button above to start or choose a lesson."}
+                </p>
+              </div>
             </div>
           )}
         </Card>
 
         {/* 3. Editor Workspace: Opens only when a task is issued */}
         {activeTask && activeSession && (
-          <Card className="w-1/2 border border-primary/20 bg-surface rounded-lg p-5 flex flex-col justify-between gap-4 animate-in slide-in-from-right-4 duration-300">
-            <div className="flex-1 flex flex-col gap-3 min-h-0">
+          <Card className="w-1/2 border border-primary/20 bg-surface rounded-lg p-5 flex flex-col justify-between gap-4 animate-in slide-in-from-right-4 duration-300 min-h-0">
+            <div className="flex-1 flex flex-col gap-3 min-h-0 overflow-y-auto pr-1">
               <div className="flex justify-between items-start gap-2 pb-2 border-b border-border">
                 <div>
                   <h4 className="text-sm font-bold text-text">{activeTask.title}</h4>
@@ -382,13 +457,29 @@ export function TutorTab() {
                   <Code size={12} />
                   Code Editor
                 </label>
-                <textarea
-                  value={codeValue}
-                  onChange={(e) => setCodeValue(e.target.value)}
-                  disabled={runCodeMutation.isPending || submitCodeMutation.isPending}
-                  className="w-full flex-1 p-3 bg-[#1E1B2E] text-white font-mono text-xs rounded-lg border border-border outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-none min-h-[220px]"
-                  placeholder={`Write your code here...`}
-                />
+                <div 
+                  className="flex-1 w-full rounded-lg overflow-hidden border min-h-[150px] bg-[#1e1e1e]"
+                  style={{ borderColor: "var(--color-border)" }}
+                >
+                  <Editor
+                    height="100%"
+                    width="100%"
+                    language={getMonacoLanguage(activeTask.language)}
+                    theme="vs-dark"
+                    value={codeValue}
+                    onChange={(val) => setCodeValue(val || "")}
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 12,
+                      lineNumbers: "on",
+                      scrollBeyondLastLine: false,
+                      automaticLayout: true,
+                      readOnly: runCodeMutation.isPending || submitCodeMutation.isPending,
+                      tabSize: 4,
+                      padding: { top: 8, bottom: 8 }
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Console logs output */}
@@ -440,6 +531,25 @@ export function TutorTab() {
           </Card>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!sessionToDelete}
+        onClose={() => setSessionToDelete(null)}
+        title="Delete Lesson"
+        footer={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setSessionToDelete(null)} disabled={deleteSessionMutation.isPending}>
+              Cancel
+            </Button>
+            <Button variant="danger" size="sm" onClick={confirmDeleteSession} disabled={deleteSessionMutation.isPending}>
+              {deleteSessionMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </>
+        }
+      >
+        Are you sure you want to delete this learning session? All chat logs, reviews, and code submissions will be permanently deleted.
+      </Modal>
     </div>
   );
 }

@@ -25,7 +25,8 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    const isLoginRequest = error.config && error.config.url && error.config.url.includes("/auth/login");
+    if (error.response && error.response.status === 401 && !isLoginRequest) {
       console.warn("[apiClient] Unauthorized! Clearing token and redirecting to login.");
       localStorage.removeItem("prepai.token");
       

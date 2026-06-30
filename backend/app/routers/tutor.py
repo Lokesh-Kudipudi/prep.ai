@@ -10,7 +10,7 @@ from app.schemas.tutor import (
     TutorSessionCreate, TutorSessionRead, TutorSessionDetail,
     UserMessageCreate, TutorMessageRead, CodeSubmissionCreate, CodingSubmissionRead
 )
-from app.services import tutor_service
+from app.services import tutor_service, piston
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["tutor"])
@@ -199,3 +199,27 @@ def stop_tutor_session(
     db.refresh(session)
     logger.info("[router:tutor] Session %s marked as stopped", session_id)
     return session
+
+
+@router.delete("/tutor/sessions/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_tutor_session(
+    session_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Deletes a tutor session and all its associated messages/submissions."""
+    session = (
+        db.query(TutorSession)
+        .join(Board, TutorSession.board_id == Board.id)
+        .filter(TutorSession.id == session_id, Board.user_id == current_user.id)
+        .first()
+    )
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tutor session not found or access denied"
+        )
+        
+    db.delete(session)
+    db.commit()
+    logger.info("[router:tutor] Session %s deleted", session_id)

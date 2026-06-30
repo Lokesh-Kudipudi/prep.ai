@@ -39,9 +39,18 @@ WINDOW_S: float  = 60.0
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def parse_retry_delay(err_str: str) -> float:
-    """Extract the retryDelay value (seconds) from a 429 error response body."""
+    """Extract the retryDelay value (seconds) from a 429 or 409 error response body."""
+    # 1. Search for retryDelay: '42s' or "42" in JSON response
     m = re.search(r"retryDelay['\"\s]*:\s*['\"\s]*(\d+(?:\.\d+)?)s?['\"\s]*", err_str)
-    return float(m.group(1)) if m else 60.0
+    if m:
+        return float(m.group(1))
+        
+    # 2. Search for raw message format: "Please retry in 42.100421558s"
+    m_retry = re.search(r"Please retry in\s+(\d+(?:\.\d+)?)s?", err_str)
+    if m_retry:
+        return float(m_retry.group(1))
+        
+    return 60.0
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -149,6 +158,10 @@ class AsyncRateLimiter:
 # ── Module-level singletons (shared across all callers in the same process) ──
 thread_limiter = ThreadSafeRateLimiter()
 async_limiter  = AsyncRateLimiter()
+
+# Rate limiters for embeddings (max 90 RPM, minimum gap of 0.66 seconds)
+thread_embeddings_limiter = ThreadSafeRateLimiter(max_rpm=90, min_gap=0.66)
+async_embeddings_limiter  = AsyncRateLimiter(max_rpm=90, min_gap=0.66)
 
 
 # ══════════════════════════════════════════════════════════════════════════════

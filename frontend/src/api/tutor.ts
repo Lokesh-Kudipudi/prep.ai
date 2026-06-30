@@ -65,3 +65,7 @@ export async function stopTutorSession(sessionId: string): Promise<TutorSession>
   const response = await apiClient.post<TutorSession>(`/tutor/sessions/${sessionId}/stop`);
   return response.data;
 }
+
+export async function deleteTutorSession(sessionId: string): Promise<void> {
+  await apiClient.delete(`/tutor/sessions/${sessionId}`);
+}

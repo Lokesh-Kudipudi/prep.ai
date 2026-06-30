@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { uploadPdf, triggerScraping, listSources, getSourceStatus, Source } from "../api/sources";
+import { uploadPdf, triggerScraping, listSources, getSourceStatus, deleteSource, Source } from "../api/sources";
 import { SOURCE_POLL_MS } from "../lib/constants";
 
 export function useSources(boardId: string | undefined) {
@@ -47,6 +47,18 @@ export function useTriggerScraping(boardId: string | undefined) {
 
   return useMutation({
     mutationFn: ({ query }: { query: string }) => triggerScraping(boardId!, query),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sources", boardId] });
+      queryClient.invalidateQueries({ queryKey: ["boards", "stats"] });
+    },
+  });
+}
+
+export function useDeleteSource(boardId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sourceId: string) => deleteSource(sourceId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sources", boardId] });
       queryClient.invalidateQueries({ queryKey: ["boards", "stats"] });

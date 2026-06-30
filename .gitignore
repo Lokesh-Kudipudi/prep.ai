@@ -2,6 +2,7 @@
 .agents/
 docs/
 note.txt
+order.md
 
 # Environment configurations
 .env

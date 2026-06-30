@@ -31,21 +31,11 @@ export function BoardLayout() {
   }
 
   return (
-    <div className="py-8">
-      {/* Breadcrumbs */}
-      <div className="text-xs font-semibold text-text-subtle mb-2 uppercase tracking-wider">
-        <Link to="/dashboard" className="hover:text-primary">Boards</Link> / <span className="text-text-muted">{board.name}</span>
-      </div>
-
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-h1 font-extrabold text-text">{board.name}</h1>
-      </div>
-
-      {/* Sub-Navigation Tabs */}
-      <BoardSubTabs boardId={board.id} />
-
+    <div className="flex-1 w-full flex flex-col min-h-0 px-6 py-4 bg-bg">
       {/* Nested View */}
-      <Outlet />
+      <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+        <Outlet />
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import logging
 from llama_index.core import Document
 from llama_index.core.schema import TextNode
 from llama_index.core.node_parser import SemanticSplitterNodeParser
-from llama_index.embeddings.gemini import GeminiEmbedding
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from app.config import settings
 
 logger = logging.getLogger(__name__)
@@ -15,9 +15,11 @@ def chunk_documents(docs: list[Document]) -> list[TextNode]:
     logger.info("[ingest:chunking] Initializing SemanticSplitterNodeParser with Gemini embeddings")
     
     # 1. Initialize Gemini embedding model
-    embed_model = GeminiEmbedding(
-        model_name="models/gemini-embedding-001",
-        api_key=settings.GOOGLE_API_KEY
+    from app.services.vectorstore import RateLimitedGoogleGenAIEmbedding
+    embed_model = RateLimitedGoogleGenAIEmbedding(
+        model_name="models/gemini-embedding-2",
+        api_key=settings.GOOGLE_API_KEY,
+        embedding_config={"output_dimensionality": 768}
     )
     
     # 2. Configure semantic splitter

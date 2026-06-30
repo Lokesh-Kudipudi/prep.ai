@@ -4,7 +4,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 from llama_index.core.schema import TextNode
 from llama_index.vector_stores.qdrant import QdrantVectorStore
-from llama_index.embeddings.gemini import GeminiEmbedding
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 from llama_index.core import StorageContext, VectorStoreIndex
 
 from app.config import settings
@@ -24,7 +24,7 @@ async def index_nodes(
     logger.info("[ingest:indexing] Setting up Qdrant client for host: %s", settings.QDRANT_URL)
     
     # 1. Initialize Qdrant client and ensure collection exists
-    client = QdrantClient(url=settings.QDRANT_URL)
+    client = QdrantClient(url=settings.QDRANT_URL, check_compatibility=False)
     collection_name = settings.QDRANT_COLLECTION
     
     # 768 is the vector dimension for models/text-embedding-004
@@ -50,9 +50,11 @@ async def index_nodes(
         # but storing them as payload is required for filtering.
 
     # 3. Create LlamaIndex QdrantVectorStore and run embedding pipeline
-    embed_model = GeminiEmbedding(
-        model_name="models/gemini-embedding-001",
-        api_key=settings.GOOGLE_API_KEY
+    from app.services.vectorstore import RateLimitedGoogleGenAIEmbedding
+    embed_model = RateLimitedGoogleGenAIEmbedding(
+        model_name="models/gemini-embedding-2",
+        api_key=settings.GOOGLE_API_KEY,
+        embedding_config={"output_dimensionality": 768}
     )
     
     vector_store = QdrantVectorStore(

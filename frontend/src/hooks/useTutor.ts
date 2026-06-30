@@ -6,7 +6,8 @@ import {
   sendTutorMessage,
   runCode,
   submitCode,
-  stopTutorSession
+  stopTutorSession,
+  deleteTutorSession
 } from "../api/tutor";
 
 export function useTutorSessions(boardId: string | undefined) {
@@ -75,6 +76,18 @@ export function useStopTutorSession(sessionId: string | undefined) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tutor-session", sessionId] });
       queryClient.invalidateQueries({ queryKey: ["tutor-sessions"] });
+    },
+  });
+}
+
+export function useDeleteTutorSession(boardId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sessionId: string) => deleteTutorSession(sessionId),
+    onSuccess: (_, sessionId) => {
+      queryClient.invalidateQueries({ queryKey: ["tutor-sessions", boardId] });
+      queryClient.removeQueries({ queryKey: ["tutor-session", sessionId] });
     },
   });
 }

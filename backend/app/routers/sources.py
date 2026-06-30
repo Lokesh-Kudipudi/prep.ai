@@ -161,6 +161,63 @@ def get_source_status(
     return source
 
 
+@router.delete("/sources/{source_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_source(
+    source_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a learning source, removing its Postgres database records, local files, and Qdrant vector store chunks."""
+    source = (
+        db.query(Source)
+        .join(Board, Source.board_id == Board.id)
+        .filter(Source.id == source_id, Board.user_id == current_user.id)
+        .first()
+    )
+    if not source:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Source not found or access denied"
+        )
+        
+    logger.info("[router:sources] Deleting source %s for board %s", source_id, source.board_id)
+
+    # 1. Clean up from Qdrant Vector DB
+    from qdrant_client import QdrantClient
+    from qdrant_client.models import Filter, FieldCondition, MatchValue
+    from app.config import settings
+
+    try:
+        client = QdrantClient(url=settings.QDRANT_URL, check_compatibility=False)
+        client.delete(
+            collection_name=settings.QDRANT_COLLECTION,
+            points_selector=Filter(
+                must=[
+                    FieldCondition(key="source_id", match=MatchValue(value=source_id))
+                ]
+            )
+        )
+        logger.info("[router:sources] Cleaned up Qdrant chunks for source %s", source_id)
+    except Exception as e:
+        logger.error("[router:sources] Failed to delete chunks from Qdrant for source %s: %s", source_id, e)
+
+    # 2. Clean up file from disk (if PDF)
+    if source.path:
+        local_filename = os.path.basename(source.path)
+        local_path = os.path.join("/app/uploads", local_filename)
+        if os.path.exists(local_path):
+            try:
+                os.remove(local_path)
+                logger.info("[router:sources] Deleted file from disk: %s", local_path)
+            except Exception as e:
+                logger.error("[router:sources] Failed to delete file %s from disk: %s", local_path, e)
+
+    # 3. Clean up database record (PostgreSQL cascades delete automatically to Chunks table)
+    db.delete(source)
+    db.commit()
+    logger.info("[router:sources] Source %s deleted successfully from PostgreSQL", source_id)
+
+
 def uuid_filename(filename: str) -> str:
     import uuid
     ext = filename.split(".")[-1] if "." in filename else ""
