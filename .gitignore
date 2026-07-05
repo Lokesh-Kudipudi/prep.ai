@@ -1,7 +1,8 @@
 # Custom agent/project configs
 .agents/
 docs/
-note.txt
+note.md
+report.txt
 order.md
 
 # Environment configurations

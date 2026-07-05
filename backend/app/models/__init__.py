@@ -1,4 +1,4 @@
-# Relational models package.
+# We are importing to run the top level code
 from app.models.user import User
 from app.models.board import Board
 from app.models.source import Source

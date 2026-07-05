@@ -1,4 +1,24 @@
+"""
+This file is reponsible for loading the environment variables into the settings variable
+"""
+
+
+"""
+BaseSettings - Automatically loads, validates, and type-checks environment variables (from .env or system environment) into Python variables. 
+If a variable is missing or has the wrong type, it throws an error immediately at startup.
+
+SettingsConfigDict - Configures how the environment variables are loaded. In our code, it specifies the path to the environment file 
+(env_file=".env"), sets encoding to utf-8, and tells Pydantic to ignore any extra variables in the .env file 
+that aren't defined in the Settings class (extra="ignore").
+
+there is no need for load_dotenv() (from python-dotenv).
+By setting env_file=".env" in the SettingsConfigDict config, 
+Pydantic automatically reads and loads the .env file under the hood the 
+moment the Settings class is instantiated (i.e. when settings = Settings() runs).
+This eliminates the need for manual setup scripts or calling dotenv utilities manually.
+"""
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
     # Relational Database
